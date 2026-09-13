@@ -19,5 +19,6 @@
 
 ## Shared UI
 
-В учебном стенде `@microfronts/ui` подключен через `file:../../packages/ui`. В реальном проекте это должен быть опубликованный npm-пакет с фиксированной версией.
+Для независимого checkout `@microfronts/ui` и `@microfronts/platform` поставляются готовыми tarball в `vendor/`. Архивы и package-lock.json должны храниться в Git. После обновления пакета обновлять версию и lock-файл. Плановый следующий шаг — npm registry.
 
+Production build требует HTTPS-переменные из `.env.example`. Для локальной проверки сборки используется `npm run build:local`; общий стенд и E2E находятся в отдельном `integration`-репозитории.
