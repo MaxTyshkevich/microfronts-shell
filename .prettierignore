@@ -1,0 +1,15 @@
+node_modules/
+dist/
+storybook-static/
+coverage/
+package-lock.json
+# Preserve the original task and installed primitives.
+StoryBook.md
+src/shared/ui/shadcn/
+
+# Installed agent skills are external sources.
+.agents/
+skills-lock.json
+
+playwright-report/
+test-results/
