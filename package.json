@@ -12,7 +12,6 @@
     "build:local": "vite build --mode integration"
   },
   "dependencies": {
-    "@microfronts/platform": "file:vendor/microfronts-platform-0.1.0.tgz",
     "@microfronts/ui": "file:vendor/microfronts-ui-0.1.0.tgz",
     "@module-federation/runtime": "2.9.0",
     "@module-federation/vite": "1.21.0",

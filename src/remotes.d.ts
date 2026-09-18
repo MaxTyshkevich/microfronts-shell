@@ -1,1 +1,1 @@
-// Remote modules are loaded via the typed @microfronts/platform contract and MF runtime.
+// Remote modules are loaded via the explicit props in remote-props.ts and MF runtime.
