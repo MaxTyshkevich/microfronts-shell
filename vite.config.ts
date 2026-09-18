@@ -19,13 +19,13 @@ export default defineConfig(({ command, mode }) => {
     for (const value of [
       env.VITE_CATALOG_REMOTE_URL,
       env.VITE_CART_REMOTE_URL,
-      env.VITE_API_BASE_URL,
     ]) {
       if (!value || !value.startsWith("https://"))
         throw new Error(
-          "Production requires HTTPS VITE_CATALOG_REMOTE_URL, VITE_CART_REMOTE_URL and VITE_API_BASE_URL",
+          "Production requires HTTPS VITE_CATALOG_REMOTE_URL and VITE_CART_REMOTE_URL",
         );
     }
+    if (apiBaseUrl !== "/api" && !apiBaseUrl.startsWith("https://")) throw new Error("API must use /api or HTTPS");
   }
   const runtimeConfig: Plugin = {
     name: "microfronts-runtime-config",
