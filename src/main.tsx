@@ -1,8 +1,8 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { createApp } from "./App";
-import { readConfig } from "./config";
-import "./styles.css";
+import { createApp } from "./app/entrypoint/create-app";
+import { readConfig } from "./app/config/runtime-config";
+import "./app/styles/global.css";
 const root = createRoot(document.getElementById("root")!);
 readConfig()
   .then((config) => {

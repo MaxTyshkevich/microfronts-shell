@@ -8,6 +8,7 @@
     "dev:all": "concurrently \"npm run dev\" \"npm --prefix ../catalog run dev:remote\" \"npm --prefix ../cart run dev:remote\"",
     "build": "vite build",
     "typecheck": "tsc -p tsconfig.json",
+    "check:architecture": "node scripts/check-architecture.mjs",
     "preview": "vite preview --host 0.0.0.0",
     "build:local": "vite build --mode integration"
   },

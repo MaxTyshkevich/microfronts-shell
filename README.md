@@ -27,3 +27,13 @@ Shell владеет маршрутами /catalog, /cart, /login, /register, /a
 Авторизация: HttpOnly cookie, формы React Hook Form, запросы TanStack Query. В production проксируйте /api на origin Shell к backend с сохранением Cookie/Set-Cookie; CORS_ORIGINS backend должен включать origin Shell. Nginx поддерживает прямые SPA-ссылки. Для другого хостинга настройте /api proxy перед SPA fallback.
 
 Обновляйте backend, Shell и remote согласованным комплектом: новый backend требует X-Requested-With для мутаций, новые remote его отправляют. Новому Shell нужны remote с поддержкой sessionScope. Zustand пока не используется.
+
+## Структура исходников
+
+`src/main.tsx` запускает приложение; `src/app` содержит конфигурацию, providers, маршруты, layout и интеграцию remote; `src/pages` — страницы auth/account/remote; `src/entities/session` — модель и API сессии. Страницы получают host-данные через props и не импортируют `app`. Внешние импорты слайсов проходят через их `index.ts`.
+
+Проверки: `npm run check:architecture`, `npm run typecheck`, `npm run build:local`. Проверка FSD-границ также включена в CI. Подробности: [архитектура](docs/architecture.md).
+
+`runtime-config.json` содержит публичные адреса API и микрофронтов. Браузер читает его при запуске, но production-файл сейчас генерируется при сборке. Изменение переменных готового Docker-контейнера его не обновляет. Объяснение и варианты развёртывания: [runtime-config](docs/runtime-config.md).
+
+Отчёт о переходе на FSD: [FSD_REPORT.md](FSD_REPORT.md).

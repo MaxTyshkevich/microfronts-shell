@@ -1,5 +1,4 @@
-import type { User } from '@microfronts/contracts';
-export interface Session { user: User | null }
+import type { Session } from '../model/session';
 export async function authRequest(api: string, path: string, options: RequestInit = {}): Promise<Session> {
   const response = await fetch(api.replace(/\/$/, '') + '/auth/' + path, {
     ...options, credentials: 'include', cache: 'no-store',
