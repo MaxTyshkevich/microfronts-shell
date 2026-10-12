@@ -10,6 +10,7 @@ import {
 import { Button, Panel } from "@microfronts/ui";
 import type { Destination } from "@microfronts/contracts";
 import { AuthPage, safeReturnTo } from "../../pages/auth";
+import { HomePage } from "../../pages/home";
 import { AccountPage } from "../../pages/account";
 import type { Remotes } from "../integrations/remotes/register-remotes";
 import { RemoteBoundary } from "../integrations/remotes/remote-boundary";
@@ -21,7 +22,7 @@ export function createRouter(remotes: Remotes) {
     {
       element: <ShellLayout />,
       children: [
-        { index: true, element: <Navigate to="/catalog" replace /> },
+        { index: true, element: <HomePage /> },
         // Public forms never wait for /auth/me. Redirect only a confirmed user.
         {
           element: <GuestOnly />,

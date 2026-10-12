@@ -1,16 +1,10 @@
+import { useAuthentication, type AuthFields } from "../model/use-authentication";
 import { safeReturnTo } from "../lib/safe-return-to";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { Button, Input, Panel } from "@microfronts/ui";
-import { authenticate, sessionKey, type Session } from "../../../entities/session";
+import type { Session } from "../../../entities/session";
 
-interface Fields {
-  name: string;
-  email: string;
-  password: string;
-  confirmation: string;
-}
 export function AuthPage({
   mode,
   api,
@@ -23,30 +17,12 @@ export function AuthPage({
   onSession: (session: Session) => Promise<void>;
 }) {
   const registration = mode === "register";
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [search] = useSearchParams();
   const returnTo = safeReturnTo(search.get("returnTo"));
-  const { control, handleSubmit, getValues } = useForm<Fields>({
+  const { control, handleSubmit, getValues } = useForm<AuthFields>({
     defaultValues: { name: "", email: "", password: "", confirmation: "" },
   });
-  const mutation = useMutation({
-    retry: false,
-    mutationFn: async (fields: Fields) => {
-      // A delayed anonymous /me response must not overwrite a successful login.
-      await queryClient.cancelQueries({ queryKey: sessionKey(api), exact: true });
-      try {
-        return await authenticate(api, mode, fields, guestKey);
-      } catch (error) {
-        void queryClient.invalidateQueries({ queryKey: sessionKey(api), exact: true });
-        throw error;
-      }
-    },
-    onSuccess: async (session) => {
-      await onSession(session);
-      navigate(returnTo, { replace: true });
-    },
-  });
+  const mutation = useAuthentication({ api, mode, guestKey, onSession, returnTo });
   return (
     <div className="shell:max-w-[480px] shell:mx-auto shell:[&>.mf-panel]:min-h-[340px] shell:[&>.mf-panel]:p-5 shell:[&>.mf-panel]:border shell:[&>.mf-panel]:border-[#d8dee8] shell:[&>.mf-panel]:rounded-lg shell:[&>.mf-panel]:bg-white shell:[&>.mf-panel>h2]:mb-4 shell:[&>.mf-panel>h2]:text-lg shell:[&_[data-slot=field]]:grid shell:[&_[data-slot=field]]:gap-[7px] shell:[&_[data-slot=field-error]]:text-[#a32121]">
       <Panel title={registration ? "Регистрация" : "Вход"}>
