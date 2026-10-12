@@ -19,9 +19,6 @@ services:
       - key: VITE_CART_REMOTE_URL
         sync: false
     headers:
-      - path: /runtime-config.json
-        name: Cache-Control
-        value: no-store
       - path: /remoteEntry.js
         name: Cache-Control
         value: no-cache
