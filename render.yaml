@@ -4,6 +4,11 @@ services:
     runtime: static
     buildCommand: npm ci --include=dev && npm run typecheck && npm run build
     staticPublishPath: ./dist
+    # Configure the deployment-specific /api reverse proxy before this fallback.
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
     envVars:
       - key: NODE_VERSION
         value: 22.16.0
@@ -14,9 +19,6 @@ services:
       - key: VITE_CART_REMOTE_URL
         sync: false
     headers:
-      - path: /runtime-config.json
-        name: Cache-Control
-        value: no-store
       - path: /remoteEntry.js
         name: Cache-Control
         value: no-cache
