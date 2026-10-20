@@ -9,10 +9,12 @@
     "build": "vite build",
     "typecheck": "tsc -p tsconfig.json",
     "check:architecture": "node scripts/check-architecture.mjs",
+    "test:auth": "playwright test src/pages/auth/ui/auth-page.pw.spec.ts",
     "preview": "vite preview --host 0.0.0.0",
     "build:local": "vite build --mode integration"
   },
   "dependencies": {
+    "@hookform/resolvers": "5.9.2",
     "@microfronts/contracts": "file:vendor/microfronts-contracts-0.1.0.tgz",
     "@microfronts/ui": "file:vendor/microfronts-ui-0.2.0-tailwind.0.tgz",
     "@module-federation/runtime": "2.9.0",
@@ -21,9 +23,11 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-hook-form": "7.87.0",
-    "react-router": "7.18.4"
+    "react-router": "7.18.4",
+    "zod": "4.6.7"
   },
   "devDependencies": {
+    "@playwright/test": "1.64.1",
     "@tailwindcss/vite": "4.3.3",
     "@types/node": "^22.20.2",
     "@types/react": "^19.0.0",

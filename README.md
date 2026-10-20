@@ -28,7 +28,7 @@ Shell владеет маршрутами /, /catalog, /cart, /login, /register,
 
 Текущий backend хранит пользователей, сессии и корзины в PostgreSQL. Разные origins имеют разные анонимные ключи корзины. Полная инструкция и отчёт — в integration/README.md и integration/IMPLEMENTATION_REPORT.md общего workspace.
 
-Авторизация: HttpOnly cookie, формы React Hook Form, запросы TanStack Query. В production проксируйте /api на origin Shell к backend с сохранением Cookie/Set-Cookie; CORS_ORIGINS backend должен включать origin Shell. Nginx поддерживает прямые SPA-ссылки. Для другого хостинга настройте /api proxy перед SPA fallback.
+Авторизация: HttpOnly cookie, формы React Hook Form с Zod-проверкой, запросы TanStack Query. В production проксируйте /api на origin Shell к backend с сохранением Cookie/Set-Cookie; CORS_ORIGINS backend должен включать origin Shell. Nginx поддерживает прямые SPA-ссылки. Для другого хостинга настройте /api proxy перед SPA fallback.
 
 Обновляйте backend, Shell и remote согласованным комплектом: новый backend требует X-Requested-With для мутаций, новые remote его отправляют. Новому Shell нужны remote с поддержкой sessionScope. Zustand пока не используется.
 
@@ -36,7 +36,7 @@ Shell владеет маршрутами /, /catalog, /cart, /login, /register,
 
 `src/main.tsx` запускает приложение; `src/app` содержит конфигурацию, providers, маршруты, layout, хедер, футер, модель выхода и интеграцию remote; `src/pages` — страницы home/auth/account; `src/entities/session` — модель и API сессии. Страницы получают host-данные через props и не импортируют `app`. Внешние импорты слайсов проходят через их `index.ts`.
 
-Проверки: `npm run check:architecture`, `npm run typecheck`, `npm run build:local`. Проверка FSD-границ также включена в CI. Подробности: [архитектура](docs/architecture.md).
+Проверки: `npm run check:architecture`, `npm run typecheck`, `npm run build:local`, `npm run test:auth`. Последняя команда запускает браузерные сценарии входа и регистрации с моками API; backend и база данных ей не нужны. Проверки также включены в CI. Подробности: [архитектура](docs/architecture.md).
 
 Публичные адреса API и remote задаются переменными Vite. Их изменение требует пересборки Shell. Подробности: [настройки](docs/runtime-config.md).
 

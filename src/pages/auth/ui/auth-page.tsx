@@ -1,5 +1,7 @@
-import { useAuthentication, type AuthFields } from "../model/use-authentication";
+import { useAuthentication } from "../model/use-authentication";
+import { createAuthSchema, type AuthFields, type AuthMode } from "../model/auth-schema";
 import { safeReturnTo } from "../lib/safe-return-to";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link, useSearchParams } from "react-router";
 import { Button, Input, Panel } from "@microfronts/ui";
@@ -11,7 +13,7 @@ export function AuthPage({
   guestKey,
   onSession,
 }: {
-  mode: "login" | "register";
+  mode: AuthMode;
   api: string;
   guestKey: string;
   onSession: (session: Session) => Promise<void>;
@@ -19,7 +21,8 @@ export function AuthPage({
   const registration = mode === "register";
   const [search] = useSearchParams();
   const returnTo = safeReturnTo(search.get("returnTo"));
-  const { control, handleSubmit, getValues } = useForm<AuthFields>({
+  const { control, handleSubmit } = useForm<AuthFields>({
+    resolver: zodResolver(createAuthSchema(mode)),
     defaultValues: { name: "", email: "", password: "", confirmation: "" },
   });
   const mutation = useAuthentication({ api, mode, guestKey, onSession, returnTo });
@@ -43,11 +46,6 @@ export function AuthPage({
               name="name"
               control={control}
               autoComplete="name"
-              rules={{
-                required: "Введите имя",
-                maxLength: { value: 80, message: "Максимум 80 символов" },
-                validate: (value) => !!value.trim() || "Введите имя",
-              }}
             />
           )}
           <Input
@@ -57,11 +55,6 @@ export function AuthPage({
             control={control}
             type="email"
             autoComplete="email"
-            rules={{
-              required: "Введите email",
-              maxLength: { value: 254, message: "Максимум 254 символа" },
-              pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Укажите корректный email" },
-            }}
           />
           <Input
             className="shell:block shell:w-full shell:p-3 shell:border shell:border-[#aebccc] shell:rounded-lg shell:bg-white shell:text-[#18212f] shell:[font:inherit]"
@@ -70,11 +63,6 @@ export function AuthPage({
             control={control}
             type="password"
             autoComplete={registration ? "new-password" : "current-password"}
-            rules={{
-              required: "Введите пароль",
-              minLength: { value: 12, message: "Минимум 12 символов" },
-              maxLength: { value: 128, message: "Максимум 128 символов" },
-            }}
           />
           {registration && (
             <Input
@@ -84,9 +72,6 @@ export function AuthPage({
               control={control}
               type="password"
               autoComplete="new-password"
-              rules={{
-                validate: (value) => value === getValues("password") || "Пароли не совпадают",
-              }}
             />
           )}
           {mutation.error && (
