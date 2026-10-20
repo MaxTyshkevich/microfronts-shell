@@ -9,6 +9,7 @@
     "build": "vite build",
     "typecheck": "tsc -p tsconfig.json",
     "check:architecture": "node scripts/check-architecture.mjs",
+    "test:auth": "playwright test src/pages/auth/ui/auth-page.pw.spec.ts",
     "preview": "vite preview --host 0.0.0.0",
     "build:local": "vite build --mode integration"
   },
@@ -26,6 +27,7 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@playwright/test": "1.64.1",
     "@tailwindcss/vite": "4.3.3",
     "@types/node": "^22.20.2",
     "@types/react": "^19.0.0",

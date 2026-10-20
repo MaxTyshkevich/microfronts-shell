@@ -12,6 +12,8 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run check:architecture
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:auth
       - run: npm run build
         env:
           VITE_API_BASE_URL: https://api.example.com/api

@@ -36,7 +36,7 @@ Shell владеет маршрутами /, /catalog, /cart, /login, /register,
 
 `src/main.tsx` запускает приложение; `src/app` содержит конфигурацию, providers, маршруты, layout, хедер, футер, модель выхода и интеграцию remote; `src/pages` — страницы home/auth/account; `src/entities/session` — модель и API сессии. Страницы получают host-данные через props и не импортируют `app`. Внешние импорты слайсов проходят через их `index.ts`.
 
-Проверки: `npm run check:architecture`, `npm run typecheck`, `npm run build:local`. Проверка FSD-границ также включена в CI. Подробности: [архитектура](docs/architecture.md).
+Проверки: `npm run check:architecture`, `npm run typecheck`, `npm run build:local`, `npm run test:auth`. Последняя команда запускает браузерные сценарии входа и регистрации с моками API; backend и база данных ей не нужны. Проверки также включены в CI. Подробности: [архитектура](docs/architecture.md).
 
 Публичные адреса API и remote задаются переменными Vite. Их изменение требует пересборки Shell. Подробности: [настройки](docs/runtime-config.md).
 

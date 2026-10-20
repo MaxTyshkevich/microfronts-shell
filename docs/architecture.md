@@ -78,7 +78,7 @@ Production build требует HTTPS-адреса remote. API может исп
 
 ## Проверки
 
-В Shell: `npm run check:architecture`, `npm run typecheck`, `npm run build:local`. CI выполняет архитектурную проверку, TypeScript и production build с HTTPS-настройками.
+В Shell: `npm run check:architecture`, `npm run typecheck`, `npm run build:local`, `npm run test:auth`. Браузерный тест лежит рядом с `AuthPage` в `pages/auth/ui`; Playwright открывает маршруты Shell и подменяет ответы `/api/auth/*`, поэтому проверяет форму, валидацию, сессию и переходы без backend. CI выполняет эти проверки и production build с HTTPS-настройками.
 
 Общий стенд и браузерные тесты находятся в отдельном репозитории `integration`. Они проверяют авторизацию, разные аккаунты, гостевую корзину, истечение сессии, прямые ссылки и отказ remote. Независимый checkout Shell не требует соседних исходников для установки и сборки.
 
