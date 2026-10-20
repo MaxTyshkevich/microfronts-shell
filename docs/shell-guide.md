@@ -36,7 +36,7 @@ Shell запускает приложение, управляет навигац
 | --- | --- |
 | [src/main.tsx](../src/main.tsx) | CSS, React root и отображение App |
 | [pages/home](../src/pages/home/index.ts) | Публичная главная с переходом в каталог |
-| [pages/auth](../src/pages/auth/index.ts) | Форма login/register, хук модели useAuthentication и безопасный returnTo |
+| [pages/auth](../src/pages/auth/index.ts) | Форма login/register, Zod-схема, хук модели useAuthentication и безопасный returnTo |
 | [pages/account](../src/pages/account/index.ts) | Отображение пользователя и роли |
 | [entities/session](../src/entities/session/index.ts) | Типы сессии, HTTP API, sessionQueries и useSession |
 | [vite.config.ts](../vite.config.ts) | Сборка, federation, Tailwind, dev proxy и проверка адресов окружения |
@@ -67,7 +67,7 @@ index.ts в слайсе — публичная точка импорта. Не 
 | /account | Подтверждённый пользователь; гость переходит на login с адресом возврата |
 | Неизвестный URL | Публичная страница 404 |
 
-В router.tsx GuestOnly управляет формами, SessionBoundary показывает ожидание/ошибку сессии, RequireAuth защищает аккаунт. AuthRoute и AccountRoute передают данные страницам. RemoteRoute передаёт API, QueryClient, область сессии и callbacks микрофронтам.
+В router.tsx GuestOnly управляет формами, SessionBoundary показывает ожидание/ошибку сессии, RequireAuth защищает аккаунт. AuthRoute и AccountRoute передают данные страницам. RemoteRoute передаёт API, QueryClient, область сессии и callbacks микрофронтам. В `pages/auth/model/auth-schema.ts` описаны проверки полей для двух режимов; React Hook Form применяет их через Zod resolver. Пароль соответствует ограничению backend 3–128 символов, имя при регистрации — 3–20 символов.
 
 И login, и register создают сессию. Backend устанавливает HttpOnly cookie и возвращает {success: true}; затем Shell получает пользователя и роль через /auth/me. Cookie отправляет браузер, JavaScript не читает токен. Подтверждённый гость — ответ user: null; ошибка сети не означает гостевую сессию.
 

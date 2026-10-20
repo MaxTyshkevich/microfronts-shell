@@ -1,17 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { authenticate, sessionKey, type Session } from "../../../entities/session";
-
-export interface AuthFields {
-  name: string;
-  email: string;
-  password: string;
-  confirmation: string;
-}
+import type { AuthFields, AuthMode } from "./auth-schema";
 
 export function useAuthentication({ api, mode, guestKey, onSession, returnTo }: {
   api: string;
-  mode: "login" | "register";
+  mode: AuthMode;
   guestKey: string;
   onSession: (session: Session) => Promise<void>;
   returnTo: string;
