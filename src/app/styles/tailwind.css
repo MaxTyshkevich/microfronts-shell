@@ -1,0 +1,8 @@
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme) prefix(shell);
+@import "tailwindcss/utilities.css" layer(utilities) prefix(shell) source(none);
+
+@source "../../";
+
+@source "../../../index.html";
