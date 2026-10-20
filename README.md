@@ -22,4 +22,4 @@ Shell передаёт apiBaseUrl и один cartKey через props. Callback
 
 Для Render используйте render.yaml; для Docker Compose — Dockerfile и nginx.conf (он ожидает сервис backend:3000). vendor и package-lock.json коммитятся, node_modules/dist/.env — нет.
 
-Текущий backend хранит учебные корзины в памяти. Разные origins имеют разные анонимные ключи корзины. Полная инструкция и отчёт — в integration/README.md и integration/IMPLEMENTATION_REPORT.md общего workspace.
+Backend хранит пользователей, сессии и корзины в PostgreSQL. Разные origins имеют разные анонимные ключи корзины. Общий локальный запуск и проверки описаны в README отдельного репозитория integration; настройка базы — в документации backend.
