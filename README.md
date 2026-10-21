@@ -20,13 +20,13 @@ npm run dev
 
 Shell загружает catalog/CatalogApp и cart/CartApp по URL; не импортирует исходники remote. Ошибки загрузки изолируются RemoteBoundary.
 
-Shell владеет маршрутами /, /catalog, /cart, /login, /register, /account и передаёт apiBaseUrl, cartKey, sessionScope, QueryClient и callbacks через props. После мутаций remote инвалидирует общий ключ корзины. При смене сессии Shell отменяет запросы и заменяет QueryClient. Данные корзины и HTTP-запросы остаются внутри remote. Конфигурация читается только host; список remotes дочерним компонентам не передаётся.
+Shell владеет маршрутами /, /catalog, /cart, /login, /register, /account и передаёт apiBaseUrl, cartKey, sessionScope, QueryClient и callbacks через props. После мутаций remote инвалидирует общий ключ корзины. Для закрытых маршрутов используется отдельный QueryClient: выход и смена пользователя отменяют запросы и очищают его. Данные корзины и HTTP-запросы остаются внутри remote. Конфигурация читается только host; список remotes дочерним компонентам не передаётся.
 
 Контракт props изменён: старые сборки с platform несовместимы с новыми. Выпускайте согласованный комплект shell/catalog/cart; для безопасной публикации сначала подготовьте отдельные URL новых remote, затем переключите новый shell на них. Откат должен восстанавливать весь комплект.
 
 Для Render используйте render.yaml; для Docker Compose — Dockerfile и nginx.conf (он ожидает сервис backend:3000). vendor и package-lock.json коммитятся, node_modules/dist/.env — нет.
 
-Текущий backend хранит пользователей, сессии и корзины в PostgreSQL. Разные origins имеют разные анонимные ключи корзины. Полная инструкция и отчёт — в integration/README.md и integration/IMPLEMENTATION_REPORT.md общего workspace.
+Текущий backend хранит пользователей, сессии и корзины в PostgreSQL. В Shell каталог и корзина доступны только после входа, анонимные ключи корзины не создаются. Полная инструкция и отчёт — в integration/README.md и integration/IMPLEMENTATION_REPORT.md общего workspace.
 
 Авторизация: HttpOnly cookie, формы React Hook Form с Zod-проверкой, запросы TanStack Query. В production проксируйте /api на origin Shell к backend с сохранением Cookie/Set-Cookie; CORS_ORIGINS backend должен включать origin Shell. Nginx поддерживает прямые SPA-ссылки. Для другого хостинга настройте /api proxy перед SPA fallback.
 
@@ -34,9 +34,9 @@ Shell владеет маршрутами /, /catalog, /cart, /login, /register,
 
 ## Структура исходников
 
-`src/main.tsx` запускает приложение; `src/app` содержит конфигурацию, providers, маршруты, layout, хедер, футер, модель выхода и интеграцию remote; `src/pages` — страницы home/auth/account; `src/entities/session` — модель и API сессии. Страницы получают host-данные через props и не импортируют `app`. Внешние импорты слайсов проходят через их `index.ts`.
+`src/main.tsx` запускает приложение; `src/app` содержит конфигурацию, providers, маршруты, layout, хедер, футер, модель выхода и интеграцию remote; `src/pages` — страницы home/auth/account; `src/entities/session` — модель и API сессии. Форма получает только API и режим, аккаунт — пользователя. Страницы не импортируют `app`. HostProvider только подключает QueryClientProvider. Внешние импорты слайсов проходят через их `index.ts`.
 
-Проверки: `npm run check:architecture`, `npm run typecheck`, `npm run build:local`, `npm run test:auth`. Последняя команда запускает браузерные сценарии входа и регистрации с моками API; backend и база данных ей не нужны. Проверки также включены в CI. Подробности: [архитектура](docs/architecture.md).
+Проверки: `npm run check:architecture`, `npm run typecheck`, `npm run build:local`, `npm run test:auth`. Последняя команда запускает браузерные сценарии форм, доступа, входа/выхода и изоляции аккаунтов с моками API и federation; backend и база данных ей не нужны. Проверки также включены в CI. Подробности: [архитектура](docs/architecture.md).
 
 Публичные адреса API и remote задаются переменными Vite. Их изменение требует пересборки Shell. Подробности: [настройки](docs/runtime-config.md).
 
@@ -56,10 +56,14 @@ UI-пакет 0.2.0-tailwind.0 из vendor автоматически поста
 
 ## Доступ и авторизация
 
-/login и /register открыты без сессии, включая недоступный API. /catalog и /cart поддерживают гостей после проверки сессии. /account требует входа; адрес возврата сохраняется. Главная `/` — публичная приветственная страница с переходом в каталог, доступная даже при ошибке API. Layout содержит отдельные хедер и футер и не блокирует публичные страницы. Хедер показывает ожидание проверки сессии, затем ссылки входа/регистрации или аккаунт и выход. После успешного выхода открывается `/`.
+Гостям доступны главная /, /login и /register; подтверждённый пользователь с этих страниц переходит на /catalog или безопасный returnTo. /catalog (Products), /cart и /account требуют входа. Закрытые маршруты ожидают /auth/me и предлагают повторную проверку при ошибке. Гостевые страницы остаются доступны во время загрузки и отказа API. Меню соответствует доступу; после выхода открывается главная.
 
-И вход, и регистрация устанавливают HttpOnly cookie. После ответа {success: true} Shell получает пользователя и роль USER/ADMIN через /auth/me. Роль показана в аккаунте; административных страниц пока нет. При смене пользователя кеш заменяется.
+Вход и регистрация устанавливают HttpOnly cookie. После {success: true} Shell получает пользователя и роль USER/ADMIN через /auth/me. Обе роли имеют доступ к существующим закрытым страницам; административные страницы не добавлены. Ошибка сети не трактуется как отсутствие входа.
 
-В соседнем integration-репозитории `npm run test:auth` проверяет маршруты, cookie, роли и изоляцию корзин с контролируемым API, без запуска базы данных.
+HTTP-функции находятся в entities/session/api/session-api.ts, queryOptions и useSession — в session-queries.ts, mutationOptions и обновление кеша — в session-mutations.ts. Единственный источник пользователя — TanStack Query; HostState, host-контекст и onSession удалены. Хуки pages/auth/model/use-authentication.ts и app/model/use-logout.ts добавляют навигацию после мутаций.
 
-Настройки запроса сессии и `useSession` находятся в `entities/session/api/session-queries.ts`; `sessionQueries.current(api)` можно использовать для загрузки через QueryClient. Типы остаются в `model/session.ts`. Сценарий входа/регистрации вынесен в `pages/auth/model/use-authentication.ts`, выход — в `app/model/use-logout.ts`. UI вызывает готовые хуки; отмена старого запроса сессии и замена кеша при смене пользователя сохраняются.
+HostProvider подключает общий QueryClient для сессии. RequireAuth открывает отдельный AuthenticatedQueryProvider с key по user.id для данных remote. При выходе, смене пользователя или сбросе/ошибке сессии закрытое дерево размонтируется и его кеш очищается. Старые ответы и мутации не меняют данные следующего пользователя.
+
+Контракт Catalog/Cart и backend не меняется. Только адаптер RemoteRoute передаёт прежние props, включая sessionScope user:<id> и пустой cartKey, который backend игнорирует при действующей сессии. Shell не создаёт гостевую корзину и не передаёт её ключ при входе. Запросы товаров и корзины остаются в remote, /auth/me запрашивает только Shell. Серверные гостевые возможности не удаляются.
+
+Проверки Shell используют управляемые ответы API и замену адаптера federation; они не проверяют настоящую загрузку remote и cookie backend. Для этого нужен отдельный общий интеграционный стенд.

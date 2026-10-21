@@ -5,18 +5,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link, useSearchParams } from "react-router";
 import { Button, Input, Panel } from "@microfronts/ui";
-import type { Session } from "../../../entities/session";
 
 export function AuthPage({
   mode,
   api,
-  guestKey,
-  onSession,
 }: {
   mode: AuthMode;
   api: string;
-  guestKey: string;
-  onSession: (session: Session) => Promise<void>;
 }) {
   const registration = mode === "register";
   const [search] = useSearchParams();
@@ -25,7 +20,7 @@ export function AuthPage({
     resolver: zodResolver(createAuthSchema(mode)),
     defaultValues: { name: "", email: "", password: "", confirmation: "" },
   });
-  const mutation = useAuthentication({ api, mode, guestKey, onSession, returnTo });
+  const mutation = useAuthentication({ api, mode, returnTo });
   return (
     <div className="shell:max-w-[480px] shell:mx-auto shell:[&>.mf-panel]:min-h-[340px] shell:[&>.mf-panel]:p-5 shell:[&>.mf-panel]:border shell:[&>.mf-panel]:border-[#d8dee8] shell:[&>.mf-panel]:rounded-lg shell:[&>.mf-panel]:bg-white shell:[&>.mf-panel>h2]:mb-4 shell:[&>.mf-panel>h2]:text-lg shell:[&_[data-slot=field]]:grid shell:[&_[data-slot=field]]:gap-[7px] shell:[&_[data-slot=field-error]]:text-[#a32121]">
       <Panel title={registration ? "Регистрация" : "Вход"}>

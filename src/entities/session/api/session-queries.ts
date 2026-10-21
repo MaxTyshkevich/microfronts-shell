@@ -1,6 +1,6 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { sessionKey } from "@microfronts/contracts";
-import { getSession } from "./auth-request";
+import { getSession } from "./session-api";
 
 export const sessionQueries = {
   current: (api: string) => queryOptions({

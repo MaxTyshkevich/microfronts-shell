@@ -1,4 +1,4 @@
-import { RouterProvider } from "react-router";
+import { RouterProvider } from "react-router/dom";
 import { config } from "../config/config";
 import { registerMicrofrontends } from "../integrations/remotes/register-remotes";
 import { HostProvider } from "../providers/host-provider";
@@ -10,7 +10,7 @@ const router = createRouter(microfrontends);
 
 export function App() {
   return (
-    <HostProvider apiBaseUrl={config.apiBaseUrl}>
+    <HostProvider>
       <RouterProvider router={router} />
     </HostProvider>
   );

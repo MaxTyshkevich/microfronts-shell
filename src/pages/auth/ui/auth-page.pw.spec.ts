@@ -78,7 +78,7 @@ test("вход отправляет форму и открывает адрес 
 
 test("регистрация отправляет проверенные данные и открывает аккаунт", async ({ page }) => {
   const submissions = await mockAuthApi(page);
-  await page.goto("/register");
+  await page.goto("/register?returnTo=%2Faccount");
 
   await page.getByRole("textbox", { name: "Имя" }).fill("  Alice  ");
   await page.getByRole("textbox", { name: "Email" }).fill("alice@example.com");
