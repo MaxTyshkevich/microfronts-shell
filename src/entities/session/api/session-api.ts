@@ -48,11 +48,9 @@ export async function authenticate(
   api: string,
   mode: "login" | "register",
   fields: { email: string; password: string; name?: string },
-  guestKey: string,
 ): Promise<Session> {
   await request(api, mode, {
     method: "POST",
-    headers: { "X-Cart-Key": guestKey },
     body: JSON.stringify({
       email: fields.email,
       password: fields.password,

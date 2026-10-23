@@ -9,7 +9,7 @@
     "build": "vite build",
     "typecheck": "tsc -p tsconfig.json",
     "check:architecture": "node scripts/check-architecture.mjs",
-    "test:auth": "playwright test src/pages/auth/ui/auth-page.pw.spec.ts",
+    "test:auth": "playwright test src/pages/auth/ui/auth-page.pw.spec.ts src/app/routes/router.pw.spec.ts",
     "preview": "vite preview --host 0.0.0.0",
     "build:local": "vite build --mode integration"
   },

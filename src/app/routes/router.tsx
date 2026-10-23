@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   createBrowserRouter,
   Navigate,
@@ -6,41 +7,44 @@ import {
   Outlet,
   useLocation,
   useNavigate,
+  useOutletContext,
 } from "react-router";
 import { Button, Panel } from "@microfronts/ui";
 import type { Destination } from "@microfronts/contracts";
+import { useSession, sessionKey, type SessionUser } from "../../entities/session";
 import { AuthPage, safeReturnTo } from "../../pages/auth";
 import { HomePage } from "../../pages/home";
 import { AccountPage } from "../../pages/account";
+import { config } from "../config/config";
 import type { Remotes } from "../integrations/remotes/register-remotes";
 import { RemoteBoundary } from "../integrations/remotes/remote-boundary";
-import { useHost } from "../providers/host-provider";
+import { AuthenticatedQueryProvider } from "../providers/authenticated-query-provider";
 import { ShellLayout } from "../ui/shell-layout";
+
+interface AuthenticatedRouteContext {
+  user: SessionUser;
+  refreshSession: () => void;
+}
 
 export function createRouter(remotes: Remotes) {
   return createBrowserRouter([
     {
       element: <ShellLayout />,
       children: [
-        { index: true, element: <HomePage /> },
-        // Public forms never wait for /auth/me. Redirect only a confirmed user.
         {
           element: <GuestOnly />,
           children: [
-            { path: "login", element: <AuthRoute mode="login" /> },
-            { path: "register", element: <AuthRoute mode="register" /> },
+            { index: true, element: <HomePage /> },
+            { path: "login", element: <AuthPage key="login" mode="login" api={config.apiBaseUrl} /> },
+            { path: "register", element: <AuthPage key="register" mode="register" api={config.apiBaseUrl} /> },
           ],
         },
-        // Catalog/cart support guests, but need a resolved cache/session scope.
         {
-          element: <SessionBoundary />,
+          element: <RequireAuth />,
           children: [
             { path: "catalog", element: <RemoteRoute name="catalog" remotes={remotes} /> },
             { path: "cart", element: <RemoteRoute name="cart" remotes={remotes} /> },
-            {
-              element: <RequireAuth />,
-              children: [{ path: "account", element: <AccountRoute /> }],
-            },
+            { path: "account", element: <AccountRoute /> },
           ],
         },
         {
@@ -48,7 +52,7 @@ export function createRouter(remotes: Remotes) {
           element: (
             <div className="shell:[&>.mf-panel]:min-h-[340px] shell:[&>.mf-panel]:p-5 shell:[&>.mf-panel]:border shell:[&>.mf-panel]:border-[#d8dee8] shell:[&>.mf-panel]:rounded-lg shell:[&>.mf-panel]:bg-white shell:[&>.mf-panel>h2]:mb-4 shell:[&>.mf-panel>h2]:text-lg">
               <Panel title="Страница не найдена">
-                <NavLink to="/catalog">Перейти в каталог</NavLink>
+                <NavLink to="/">На главную</NavLink>
               </Panel>
             </div>
           ),
@@ -59,58 +63,55 @@ export function createRouter(remotes: Remotes) {
 }
 
 function GuestOnly() {
-  const host = useHost();
+  const session = useSession(config.apiBaseUrl);
   const location = useLocation();
-  return host.status === "ready" && host.user ? (
+  // Public forms remain usable while the session is loading or API is down.
+  return session.isSuccess && session.data.user ? (
     <Navigate to={safeReturnTo(new URLSearchParams(location.search).get("returnTo"))} replace />
   ) : (
     <Outlet />
   );
 }
 
-function SessionBoundary() {
-  const host = useHost();
-  if (host.status === "error")
+function RequireAuth() {
+  const session = useSession(config.apiBaseUrl);
+  const client = useQueryClient();
+  const location = useLocation();
+  if (session.isError)
     return (
       <div role="alert">
-        Не удалось проверить сессию. {host.error?.message}{" "}
-        <Button onClick={host.retrySession}>Повторить проверку</Button>
+        Не удалось проверить сессию. {session.error.message}{" "}
+        <Button onClick={() => void session.refetch()}>Повторить проверку</Button>
       </div>
     );
-  return host.status === "ready" ? <Outlet /> : <p role="status">Проверяем сессию…</p>;
-}
-
-function RequireAuth() {
-  const host = useHost();
-  const location = useLocation();
-  return host.user ? (
-    <Outlet />
-  ) : (
-    <Navigate
-      to={
-        "/login?returnTo=" + encodeURIComponent(location.pathname + location.search + location.hash)
-      }
-      replace
-    />
-  );
-}
-
-function AuthRoute({ mode }: { mode: "login" | "register" }) {
-  const host = useHost();
+  if (session.isPending) return <p role="status">Проверяем сессию…</p>;
+  if (!session.data.user)
+    return (
+      <Navigate
+        to={"/login?returnTo=" + encodeURIComponent(location.pathname + location.search + location.hash)}
+        replace
+      />
+    );
+  const context: AuthenticatedRouteContext = {
+    user: session.data.user,
+    refreshSession: () => {
+      // Reset hides private content until /me confirms the current identity.
+      void client.resetQueries(
+        { queryKey: sessionKey(config.apiBaseUrl), exact: true },
+        { throwOnError: true },
+      ).catch(() => { /* The route offers retry after a failed session check. */ });
+    },
+  };
   return (
-    <AuthPage
-      key={mode}
-      mode={mode}
-      api={host.apiBaseUrl}
-      guestKey={host.guestKey}
-      onSession={host.onSession}
-    />
+    <AuthenticatedQueryProvider key={context.user.id}>
+      <Outlet context={context} />
+    </AuthenticatedQueryProvider>
   );
 }
 
 function AccountRoute() {
-  const host = useHost();
-  return host.user ? <AccountPage user={host.user} /> : null;
+  const { user } = useOutletContext<AuthenticatedRouteContext>();
+  return <AccountPage user={user} />;
 }
 
 function RemoteRoute({
@@ -120,25 +121,23 @@ function RemoteRoute({
   name: "catalog" | "cart";
   remotes: Remotes;
 }) {
-  const host = useHost();
+  const { user, refreshSession } = useOutletContext<AuthenticatedRouteContext>();
+  const client = useQueryClient();
   const navigate = useNavigate();
-  const scope = host.user ? "user:" + host.user.id : "guest:" + host.guestKey;
   const props = {
-    apiBaseUrl: host.apiBaseUrl,
-    cartKey: host.guestKey,
-    queryClient: host.client,
-    sessionScope: scope,
+    apiBaseUrl: config.apiBaseUrl,
+    // Required by the existing remote contract. Authenticated backend requests
+    // choose the cart from the cookie and ignore this legacy guest field.
+    cartKey: "",
+    queryClient: client,
+    sessionScope: "user:" + user.id,
     onNavigate: (destination: Destination) => navigate("/" + destination),
-    onUnauthorized: () => {
-      void host.refreshSession().catch(() => {
-        /* SessionBoundary offers retry. */
-      });
-    },
+    onUnauthorized: refreshSession,
   };
   return (
     <div className="shell:[&>.mf-panel]:min-h-[340px] shell:[&>.mf-panel]:p-5 shell:[&>.mf-panel]:border shell:[&>.mf-panel]:border-[#d8dee8] shell:[&>.mf-panel]:rounded-lg shell:[&>.mf-panel]:bg-white shell:[&>.mf-panel>h2]:mb-4 shell:[&>.mf-panel>h2]:text-lg">
       <Panel title={name === "catalog" ? "Каталог товаров" : "Ваша корзина"}>
-        <RemoteBoundary name={name} key={scope + name}>
+        <RemoteBoundary name={name} key={user.id + name}>
           <Suspense
             fallback={<p role="status">Загружаем {name === "catalog" ? "каталог" : "корзину"}…</p>}
           >

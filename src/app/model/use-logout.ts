@@ -1,17 +1,18 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
-import { logout as endSession } from "../../entities/session";
-import { useHost } from "../providers/host-provider";
+import { sessionMutations } from "../../entities/session";
+import { config } from "../config/config";
 
 export function useLogout() {
-  const host = useHost();
+  const client = useQueryClient();
   const navigate = useNavigate();
+  const options = sessionMutations.logout(config.apiBaseUrl, client);
   return useMutation({
-    retry: false,
-    mutationFn: () => endSession(host.apiBaseUrl),
-    onSuccess: async () => {
-      await host.onSession({ user: null });
-      navigate("/", { replace: true });
+    ...options,
+    onSuccess: async (...args) => {
+      await options.onSuccess?.(...args);
+      // Commit the route before RequireAuth can redirect the signed-out user.
+      await navigate("/", { replace: true, flushSync: true });
     },
   });
 }

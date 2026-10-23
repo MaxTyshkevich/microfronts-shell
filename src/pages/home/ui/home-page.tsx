@@ -6,8 +6,8 @@ export function HomePage() {
       <div className="shell:rounded-3xl shell:bg-[#e8f3ee] shell:p-7 shell:sm:p-14">
         <p className="shell:mb-5 shell:text-sm shell:font-bold shell:uppercase shell:tracking-widest shell:text-[#176044]">Добро пожаловать в Microfronts Lab</p>
         <h1 id="welcome-title" className="shell:max-w-[760px] shell:text-[clamp(36px,6vw,64px)] shell:font-bold shell:leading-[1.08] shell:tracking-tight">Ваш следующий выбор начинается здесь.</h1>
-        <p className="shell:mt-6 shell:max-w-[560px] shell:text-lg shell:leading-relaxed shell:text-[#425b51]">Загляните в каталог, найдите то, что вам нравится, и соберите свою корзину. Начать покупки можно без регистрации.</p>
-        <Link to="/catalog" className="shell:mt-8 shell:inline-flex shell:min-h-12 shell:items-center shell:rounded-xl shell:bg-[#176044] shell:px-6 shell:py-3 shell:font-bold shell:text-white shell:no-underline shell:hover:bg-[#104a33] shell:focus-visible:outline-2 shell:focus-visible:outline-offset-4">Перейти в каталог <span aria-hidden="true" className="shell:ml-3">→</span></Link>
+        <p className="shell:mt-6 shell:max-w-[560px] shell:text-lg shell:leading-relaxed shell:text-[#425b51]">Загляните в каталог, найдите то, что вам нравится, и соберите свою корзину. Войдите или создайте аккаунт, чтобы открыть каталог и начать покупки.</p>
+        <Link to="/login" className="shell:mt-8 shell:inline-flex shell:min-h-12 shell:items-center shell:rounded-xl shell:bg-[#176044] shell:px-6 shell:py-3 shell:font-bold shell:text-white shell:no-underline shell:hover:bg-[#104a33] shell:focus-visible:outline-2 shell:focus-visible:outline-offset-4">Войти и открыть каталог <span aria-hidden="true" className="shell:ml-3">→</span></Link>
       </div>
       <div className="shell:mt-8 shell:grid shell:gap-6 shell:sm:grid-cols-3">
         {[
