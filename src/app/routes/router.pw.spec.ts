@@ -112,7 +112,7 @@ async function login(page: Page, email = alice.email) {
   await page.getByRole("button", { name: "Войти", exact: true }).click();
 }
 
-for (const path of ["/catalog", "/cart", "/account"]) {
+for (const path of ["/catalog", "/catalog/products/keyboard", "/cart", "/account"]) {
   test("гость не открывает " + path + " и сохраняет адрес возврата", async ({ page }) => {
     await mockApi(page);
     await mockRemotes(page);
@@ -126,6 +126,19 @@ for (const path of ["/catalog", "/cart", "/account"]) {
     expect(await page.evaluate(() => localStorage.getItem("microfronts.demo-cart.v1"))).toBeNull();
   });
 }
+
+test("вход возвращает к товару с выбранной категорией", async ({ page }) => {
+  await mockApi(page);
+  await mockRemotes(page);
+  const destination = "/catalog/products/keyboard?category=peripherals";
+  await open(page, destination);
+  await expect(page).toHaveURL(/\/login\?returnTo=/);
+  await login(page);
+  await expect(page).toHaveURL(url => url.pathname + url.search === destination);
+  await expect(page.getByText("Remote catalog", { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByText("Remote catalog", { exact: true })).toBeVisible();
+});
 
 for (const path of ["/", "/login", "/register"]) {
   test("авторизованный пользователь переходит с " + path + " в каталог", async ({ page }) => {

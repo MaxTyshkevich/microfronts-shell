@@ -42,7 +42,7 @@ export function createRouter(remotes: Remotes) {
         {
           element: <RequireAuth />,
           children: [
-            { path: "catalog", element: <RemoteRoute name="catalog" remotes={remotes} /> },
+            { path: "catalog/*", element: <RemoteRoute name="catalog" remotes={remotes} /> },
             { path: "cart", element: <RemoteRoute name="cart" remotes={remotes} /> },
             { path: "account", element: <AccountRoute /> },
           ],
