@@ -1,5 +1,7 @@
 # @microfronts/shell
 
+Catalog подключается по `/catalog/*` и сам определяет список товаров и страницу `/catalog/products/:productId`. Фильтр категорий хранится в query string; адрес товара сохраняется при входе. Shell и catalog разделяют singleton `react-router` 7.18.4 через Module Federation. Сначала выпустить backend с категориями, затем согласованно обновить Shell и catalog; публичные props remote сохраняются.
+
 Практическое руководство: [карта файлов и план работы с Shell](docs/shell-guide.md).
 
 Архитектура и правила FSD: [docs/architecture.md](docs/architecture.md). Процесс выполнения задач: [AGENTS.md](AGENTS.md).

@@ -70,6 +70,7 @@ export default defineConfig(({ command, mode }) => {
           "react-dom": { singleton: true, requiredVersion: "^19.0.0" },
           "react/jsx-runtime": { singleton: true, requiredVersion: "^19.0.0" },
           "react-dom/client": { singleton: true, requiredVersion: "^19.0.0" },
+          "react-router": { singleton: true, requiredVersion: "7.18.4" },
         },
       }),
     ],

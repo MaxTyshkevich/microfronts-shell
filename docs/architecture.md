@@ -64,6 +64,10 @@ SessionUser расширяет User из contracts полем role: USER или 
 
 ## Контракт remote
 
+Shell монтирует catalog по `/catalog/*`: список `/catalog` и товар `/catalog/products/:productId` определяются внутри remote. Категория списка хранится в query string. `react-router` 7.18.4 разделяется как singleton через Module Federation: Shell предоставляет общий router, catalog использует его контекст и не создаёт вложенный BrowserRouter. Формат CatalogProps прежний; для нового catalog требуется обновлённый Shell. После входа safeReturnTo допускает конкретный путь товара с query/hash, сохраняя прежние проверки origin и остальных разрешённых страниц. Прямые ссылки требуют SPA fallback на host.
+
+Выпуск: сначала backend с миграцией категорий и API товара по ID, затем согласованное обновление Shell и catalog. Проверки Shell используют подмену remote; они не заменяют проверку настоящей Module Federation и общего контекста router.
+
 React 19, TypeScript, Vite, Module Federation и TanStack Query. UI и типы интеграции поставляются tarball-пакетами `@microfronts/ui` и `@microfronts/contracts` из `vendor`. Их исходники в Shell не копируются.
 
 Remote получают `apiBaseUrl`, `cartKey`, `queryClient`, `sessionScope`, `onUnauthorized` и `onNavigate`. Контракт пакета не меняется. Shell передаёт `sessionScope: user:<id>` и пустой `cartKey`: для подтверждённого пользователя backend игнорирует гостевой ключ. Параметры совместимости формируются только в RemoteRoute. Типы props импортируются непосредственно из `@microfronts/contracts`. Реестр URL остаётся только внутри Shell. Контракт props и имена exposed modules сохраняются.
