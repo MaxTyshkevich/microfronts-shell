@@ -82,6 +82,8 @@ Vite проверяет URL при запуске и сборке. Адреса 
 
 Production build требует HTTPS-адреса remote. API может использовать `/api` на origin Shell. Reverse proxy должен сохранять Cookie/Set-Cookie; SPA fallback должен поддерживать прямые ссылки. В браузерный конфиг нельзя помещать секреты.
 
+На Vercel `vercel.json` проксирует `/api/:path*` на Railway перед SPA fallback. Для этого размещения `VITE_API_BASE_URL=/api` задаётся при сборке Shell. Catalog и Cart получают тот же адрес через props; их remote URL и сборки не меняются. Cookie с `SameSite=Lax` используется через origin Shell, без cross-site запросов браузера к Railway. При смене backend нужно обновить destination в `vercel.json`; `API_PROXY_TARGET` действует только для локального Vite, не для Vercel.
+
 ## Проверки
 
 В Shell: `npm run check:architecture`, `npm run typecheck`, `npm run build:local`, `npm run test:auth`. CI также выполняет production build с HTTPS-настройками.

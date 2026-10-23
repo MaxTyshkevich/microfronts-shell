@@ -32,6 +32,8 @@ Shell владеет маршрутами /, /catalog, /cart, /login, /register,
 
 Авторизация: HttpOnly cookie, формы React Hook Form с Zod-проверкой, запросы TanStack Query. В production проксируйте /api на origin Shell к backend с сохранением Cookie/Set-Cookie; CORS_ORIGINS backend должен включать origin Shell. Nginx поддерживает прямые SPA-ссылки. Для другого хостинга настройте /api proxy перед SPA fallback.
 
+Для Vercel [vercel.json](vercel.json) уже направляет `/api/*` на Railway, а остальные SPA-маршруты — на `index.html`. В настройках проекта Vercel задайте `VITE_API_BASE_URL=/api` и выполните новую сборку: абсолютный адрес Railway в этой переменной обходит proxy и несовместим с текущей cookie `SameSite=Lax` при cross-site запросах. Адреса remote менять не нужно: Catalog и Cart внутри Shell получают `/api` через props. Порядок настройки и проверки описан в [runtime-config.md](docs/runtime-config.md#vercel-и-cookie-сессии).
+
 Обновляйте backend, Shell и remote согласованным комплектом: новый backend требует X-Requested-With для мутаций, новые remote его отправляют. Новому Shell нужны remote с поддержкой sessionScope. Zustand пока не используется.
 
 ## Структура исходников

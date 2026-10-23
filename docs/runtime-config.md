@@ -21,6 +21,24 @@ main.tsx сразу отображает обычный App. В модуле App
 
 VITE_* доступны посетителю сайта: секреты в них хранить нельзя. Изменение адреса не отменяет требования совместимости контрактов remote. Nginx по-прежнему проксирует /api и поддерживает SPA-ссылки. Имя этого документа сохранено для существующих ссылок.
 
+## Vercel и cookie сессии
+
+`vercel.json` задаёт два rewrite в порядке обработки: `/api/:path*` направляется на `https://microfronts-api-production-f9c3.up.railway.app/api/:path*`, затем SPA-маршруты направляются на `/index.html`. API не должен попадать в SPA fallback. Запросы авторизации возвращают `Cache-Control: no-store`; кеширование API на proxy включать не нужно.
+
+Настройка размещения:
+
+1. В проекте Vercel для Shell установите `VITE_API_BASE_URL=/api` в Production. Если проверяете Preview, задайте это значение также для Preview. Удалите старое абсолютное значение Railway из соответствующего окружения. Значения `VITE_CATALOG_REMOTE_URL` и `VITE_CART_REMOTE_URL` сохраняются.
+2. На backend сохраните `CORS_ORIGINS` с точным origin Shell, например `https://microfronts-shell.vercel.app`. Для проверки мутаций на Preview разрешите конкретный origin Preview отдельно. Proxy сохраняет исходный Origin; backend проверяет его также в CSRF guard.
+3. Выпустите Shell с `vercel.json` и выполните новую сборку с обновлённой переменной. Переменные Vite встраиваются в JavaScript: изменение переменной без пересборки не меняет готовый сайт.
+4. В DevTools проверьте Request URL входа: `https://microfronts-shell.vercel.app/api/auth/login`. Ответ должен установить HttpOnly cookie `microfronts_session` для домена Shell с `Path=/api`, `SameSite=Lax` и `Secure` при production HTTPS. Следующий `/api/auth/me` должен отправлять cookie и возвращать пользователя. Не копируйте значение cookie в логи или отчёты.
+5. Проверьте обновление страницы, прямой переход на `/catalog`, загрузку каталога, операции корзины и выход. После выхода `/api/auth/me` должен возвращать `{ "user": null }`.
+
+Браузер обращается к origin Shell; Vercel передаёт запросы на Railway. Поэтому backend может оставаться на Railway с текущими атрибутами cookie. Прямой cross-site fetch к Railway не передаёт cookie с `SameSite=Lax` даже с `credentials: "include"`.
+
+Catalog и Cart, загруженные как remote внутри Shell, используют переданный `apiBaseUrl=/api`, а относительные запросы выполняются на origin страницы Shell. Их отдельные production-деплои и настройки не меняются. Самостоятельные страницы Catalog и Cart читают собственный `runtime-config.json`; их отдельная авторизация этой настройкой не обеспечивается.
+
+`API_PROXY_TARGET` настраивает только dev/preview-сервер Vite. Для смены production backend на Vercel обновите destination в `vercel.json`. Для отката используйте предыдущий исправный deployment с соответствующими переменными сборки; возврат к прямому адресу Railway снова создаёт зависимость от cross-site cookie.
+
 ## Настройки загрузки микрофронтов
 
 В config.ts каждый объект remotes.catalog и remotes.cart содержит name (имя регистрации), entry (URL), type (формат module) и moduleId (готовый идентификатор catalog/CatalogApp или cart/CartApp). Общий remoteLoadTimeoutMs задаёт ожидание загрузки в миллисекундах, по умолчанию 20 000.
