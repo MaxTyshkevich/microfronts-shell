@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { federation } from "@module-federation/vite";
@@ -58,6 +59,7 @@ export default defineConfig(({ command, mode }) => {
     "/api": { target: env.API_PROXY_TARGET || "http://localhost:3000", changeOrigin: true },
   };
   return {
+    resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
     plugins: [
       tailwindcss(),
       react(),

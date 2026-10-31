@@ -2,6 +2,8 @@
 
 Catalog подключается по `/catalog/*` и сам определяет список товаров и страницу `/catalog/products/:productId`. Фильтр категорий хранится в query string; адрес товара сохраняется при входе. Shell и catalog разделяют singleton `react-router` 7.18.4 через Module Federation. Сначала выпустить backend с категориями, затем согласованно обновить Shell и catalog; публичные props remote сохраняются.
 
+Импорты: `@/` указывает на собственный `src`; между слайсами использовать публичный API, внутри слайса — прямой относительный путь. Проверки: `npm run lint` (включая границы FSD), `npm run test:lint` (тесты правил). `npm run check:architecture` — совместимый псевдоним lint. Подробности и исключения описаны в [архитектуре](docs/architecture.md#импорты-и-eslint).
+
 Практическое руководство: [карта файлов и план работы с Shell](docs/shell-guide.md).
 
 Архитектура и правила FSD: [docs/architecture.md](docs/architecture.md). Процесс выполнения задач: [AGENTS.md](AGENTS.md).

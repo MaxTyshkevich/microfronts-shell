@@ -1,5 +1,5 @@
 import { Panel } from "@microfronts/ui";
-import type { Session } from "../../../entities/session";
+import type { Session } from "@/entities/session";
 
 export function AccountPage({ user }: { user: NonNullable<Session["user"]> }) {
   return (

@@ -10,8 +10,9 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - run: npm run lint
+      - run: npm run test:lint
       - run: npm run typecheck
-      - run: npm run check:architecture
       - run: npx playwright install --with-deps chromium
       - run: npm run test:auth
       - run: npm run build
