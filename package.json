@@ -12,8 +12,7 @@
     "test:auth": "playwright test src/pages/auth/ui/auth-page.pw.spec.ts src/app/routes/router.pw.spec.ts",
     "preview": "vite preview --host 0.0.0.0",
     "build:local": "vite build --mode integration",
-    "lint": "eslint src --max-warnings 0",
-    "test:lint": "node --test scripts/eslint/*.test.mjs"
+    "lint": "eslint src --max-warnings 0"
   },
   "dependencies": {
     "@hookform/resolvers": "5.9.2",
