@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
-import { sessionMutations } from "../../../entities/session";
+import { sessionMutations } from "@/entities/session";
 import type { AuthMode } from "./auth-schema";
 
 export function useAuthentication({ api, mode, returnTo }: {

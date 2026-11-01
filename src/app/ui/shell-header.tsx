@@ -1,6 +1,6 @@
 import { Link, NavLink } from "react-router";
 import { Button } from "@microfronts/ui";
-import type { SessionUser } from "../../entities/session";
+import type { SessionUser } from "@/entities/session";
 
 const navClass = "shell:px-3 shell:py-2 shell:rounded-lg shell:text-[#334155] shell:no-underline shell:hover:bg-[#edf2fa] shell:aria-[current=page]:bg-[#dbeafe] shell:aria-[current=page]:text-[#174a8b] shell:focus-visible:outline-2 shell:focus-visible:outline-offset-4";
 

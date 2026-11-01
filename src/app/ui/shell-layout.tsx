@@ -1,5 +1,5 @@
 import { Outlet } from "react-router";
-import { useSession } from "../../entities/session";
+import { useSession } from "@/entities/session";
 import { config } from "../config/config";
 import { useLogout } from "../model/use-logout";
 import { ShellHeader } from "./shell-header";

@@ -11,10 +11,10 @@ import {
 } from "react-router";
 import { Button, Panel } from "@microfronts/ui";
 import type { Destination } from "@microfronts/contracts";
-import { useSession, sessionKey, type SessionUser } from "../../entities/session";
-import { AuthPage, safeReturnTo } from "../../pages/auth";
-import { HomePage } from "../../pages/home";
-import { AccountPage } from "../../pages/account";
+import { useSession, sessionKey, type SessionUser } from "@/entities/session";
+import { AuthPage, safeReturnTo } from "@/pages/auth";
+import { HomePage } from "@/pages/home";
+import { AccountPage } from "@/pages/account";
 import { config } from "../config/config";
 import type { Remotes } from "../integrations/remotes/register-remotes";
 import { RemoteBoundary } from "../integrations/remotes/remote-boundary";
